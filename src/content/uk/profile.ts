@@ -7,7 +7,7 @@ export const profile: Profile = {
   title: 'Senior Full-Stack Engineer',
   stackLine: 'React, Next.js & Node.js',
   intro:
-    'В Unity та ironSource я створював аналітичні дашборди для розробників ігор і модернізував бекенд-сервіси тієї самої платформи монетизації. Понад 7 років комерційної розробки, TypeScript на всьому стеку.',
+    'Я створюю вебпродукти від і до: інтерфейси на React, сервіси на Node.js, інфраструктуру AWS і AI-функції. Понад 7 років комерційної розробки, останні чотири в Unity.',
   metaDescription:
     'Понад 7 років комерційної розробки на React, Next.js, Node.js і TypeScript. В Unity я створював аналітичні дашборди та модернізував бекенд-сервіси.',
   focus: [
