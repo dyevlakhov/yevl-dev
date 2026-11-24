@@ -1,0 +1,23 @@
+export const meta = { slug: 'career-pro', locale: 'en' };
+
+## Context
+
+In 2021 I was a Full Stack Developer at Career PRO and the only developer on the company's mobile app. Nobody in the company had built with React Native before, so the research and the choice were mine.
+
+**Stack:** React Native, Apollo GraphQL, automated tests, CI/CD for mobile releases.
+
+## Decisions
+
+### 1. React Native, Swift or Flutter
+
+Swift covered only iOS. Flutter meant learning a new language from scratch. React Native gave one codebase for both platforms and let the app reuse code the company already had, so I chose it.
+
+### 2. Share everything that is not UI
+
+Business logic, API calls and types lived in shared packages, so the app never reimplemented rules that already existed elsewhere.
+
+### 3. Releases without a release team
+
+I set up automated tests and CI/CD for mobile builds and handled the App Store and Google Play submissions myself.
+
+**Result:** the app reached real users on both stores, with me as the only developer.

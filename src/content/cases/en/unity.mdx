@@ -1,0 +1,33 @@
+export const meta = { slug: 'unity', locale: 'en' };
+
+## Context
+
+I was a Senior Software Engineer at ironSource and stayed in the same role at Unity after the 2022 merger. The product is a monetization platform for game developers. It is used every day, so every change had to ship without freezing product work.
+
+**Stack:** TypeScript, Node.js, NestJS, gRPC, Protocol Buffers, Amazon SQS, React, Next.js, Terraform, CircleCI, GitHub Actions.
+
+## Decisions
+
+### 1. Performance first
+
+I started by finding where request time went. Some of it could be optimized in place, and heavier work moved to asynchronous processing, so requests no longer waited for it.
+
+### 2. Modernize the backend step by step
+
+I proposed moving the backend to NestJS for a consistent, modular structure, and drove the move. It went in small steps, each one reversible, while product work continued.
+
+**Cost:** a transition period with more code to maintain, in exchange for never shipping a big-bang release.
+
+### 3. Analytics dashboards
+
+I owned the analytics side of the product’s frontend: the dashboards, charts and metric views game developers use to follow their numbers. I built them with React and Next.js, fetched data with TanStack Query and built the data tables on TanStack Table.
+
+### 4. Typed contracts between services
+
+I proposed and implemented gRPC between services. We generated client and server types from shared Protocol Buffer definitions.
+
+## Also at Unity and ironSource
+
+- AWS infrastructure as code with Terraform; CI/CD in CircleCI and GitHub Actions.
+- Custom Claude Code skills and agents that automate recurring engineering tasks.
+- At ironSource: features across the frontend and backend of a self-service platform for app monetization and growth.

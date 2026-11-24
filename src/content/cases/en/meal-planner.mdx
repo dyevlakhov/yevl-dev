@@ -1,0 +1,21 @@
+export const meta = { slug: 'meal-planner', locale: 'en' };
+
+## Context
+
+A family meal planner I build and run alone: a phone app, an API and AI recipe suggestions, in a closed alpha. Decisions that are expensive to reverse are written down as architecture decision records (ADRs), and backups are verified by restore drills.
+
+**Stack:** NestJS, PostgreSQL, Expo (React Native), the Claude API.
+
+## Decisions
+
+### 1. One process, one database
+
+The textbook setup for background AI jobs is a queue, workers and a cache. I chose a modular monolith on PostgreSQL instead. With one operator, every extra service is one more thing to keep alive. At Unity the right answer was services; here it is a monolith.
+
+### 2. Treat AI output as a proposal
+
+Personal data is minimized before it reaches the model, and every AI call is recorded with its outcome. A recipe reaches the plan only after automated checks and a person's approval.
+
+### 3. Phone first, web frozen
+
+Once the native app existed, I froze the web client instead of keeping both at parity, so every feature is built once.
