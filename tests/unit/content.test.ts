@@ -103,13 +103,13 @@ test('English hero copy matches the positioning spec', () => {
   expect(p.title).toBe('Senior Full-Stack Engineer');
   expect(p.stackLine).toBe('React, Next.js & Node.js');
   expect(p.intro).toBe(
-    'I build web products end to end: React interfaces, Node.js services, AWS infrastructure and AI features. 7+ years of commercial software development, the last four at Unity and ironSource.',
+    'I build web products end to end: React interfaces, Node.js services, AWS infrastructure and AI features. 7+ years of commercial software development, the last four at Unity.',
   );
 });
 
 test('Ukrainian hero intro matches the positioning spec', () => {
   expect(getContent('uk').profile.intro).toBe(
-    'Я створюю вебпродукти від і до: інтерфейси на React, сервіси на Node.js, інфраструктуру AWS і AI-функції. Понад 7 років комерційної розробки, останні чотири в Unity та ironSource.',
+    'Я створюю вебпродукти від і до: інтерфейси на React, сервіси на Node.js, інфраструктуру AWS і AI-функції. Понад 7 років комерційної розробки, останні чотири в Unity.',
   );
 });
 

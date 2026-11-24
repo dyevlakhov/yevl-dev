@@ -7,7 +7,7 @@ export const profile: Profile = {
   title: 'Senior Full-Stack Engineer',
   stackLine: 'React, Next.js & Node.js',
   intro:
-    'I build web products end to end: React interfaces, Node.js services, AWS infrastructure and AI features. 7+ years of commercial software development, the last four at Unity and ironSource.',
+    'I build web products end to end: React interfaces, Node.js services, AWS infrastructure and AI features. 7+ years of commercial software development, the last four at Unity.',
   metaDescription:
     '7+ years of commercial software development with React, Next.js, Node.js and TypeScript. At Unity, I built analytics dashboards and modernized backend services.',
   focus: ['backend', 'frontend', 'cloud', 'AI features', 'mobile', 'integrations'],
