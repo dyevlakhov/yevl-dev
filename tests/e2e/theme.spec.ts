@@ -90,7 +90,8 @@ for (const theme of ['vice', 'dark', 'light'] as const) {
 for (const theme of ['vice', 'dark'] as const) {
   test(`switch shows ${theme} as current before hydration`, async ({ page }) => {
     if (theme !== 'vice') await page.addInitScript((v) => localStorage.setItem('theme', v), theme);
-    await page.route('**/_next/static/chunks/*.js', (r) => r.abort());
+    // Vercel serves chunks under /_next/static/immutable/chunks/, a local build under /_next/static/chunks/.
+    await page.route('**/_next/static/**/*.js', (r) => r.abort());
     await page.goto('/');
     const buttons = page.getByRole('group', { name: 'Theme' }).getByRole('button');
     await expect(buttons).toHaveCount(3);

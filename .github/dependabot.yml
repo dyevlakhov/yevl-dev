@@ -5,6 +5,9 @@ updates:
     directory: /
     schedule:
       interval: monthly
+    # A release has to be a week old before Dependabot proposes it (supply-chain safety).
+    cooldown:
+      default-days: 7
     open-pull-requests-limit: 5
     groups:
       minor-and-patch:
@@ -17,6 +20,8 @@ updates:
     directory: /
     schedule:
       interval: monthly
+    cooldown:
+      default-days: 7
     groups:
       actions:
         patterns: ['*']

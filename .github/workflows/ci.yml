@@ -20,6 +20,18 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+      # Private copy-rule patterns (tests/guard-terms.ts). Forks get no secrets, so their PRs skip
+      # those tests; everywhere else an empty secret would skip them silently, so fail instead.
+      # Dependabot PRs read the copy in the repo's Dependabot secrets.
+      - name: Require GUARD_TERMS
+        if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+        env:
+          GUARD_TERMS: ${{ secrets.GUARD_TERMS }}
+        run: |
+          if [ -z "$GUARD_TERMS" ]; then
+            echo "::error::GUARD_TERMS secret is empty (Actions secrets, or Dependabot secrets for Dependabot PRs)"
+            exit 1
+          fi
       - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
@@ -29,7 +41,6 @@ jobs:
       - run: pnpm typecheck
       - run: pnpm lint
       - run: pnpm format:check
-      # Private copy-rule patterns (tests/guard-terms.ts); the tests that need them skip without it.
       - run: pnpm test
         env:
           GUARD_TERMS: ${{ secrets.GUARD_TERMS }}
@@ -50,3 +61,32 @@ jobs:
             test-results/
             .lighthouseci/
           if-no-files-found: ignore
+          retention-days: 14
+
+  # Workflow correctness (actionlint) and security (zizmor: injection, credential leaks,
+  # unpinned or impostor actions, Dependabot cooldown).
+  workflows:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: actionlint
+        uses: docker://rhysd/actionlint@sha256:b1934ee5f1c509618f2508e6eb47ee0d3520686341fec936f3b79331f9315667 # 1.7.12
+        with:
+          args: -color
+      - name: zizmor
+        run: pipx run zizmor==1.32.0 --format=github .github/
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+  # New dependencies with known vulnerabilities or a disallowed licence fail the PR.
+  dependency-review:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
+        with:
+          fail-on-severity: moderate
