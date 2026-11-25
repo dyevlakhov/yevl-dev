@@ -466,6 +466,7 @@ footer a:not(.btn):hover {
   .row-hover > p,
   #how-i-work li > p[aria-hidden],
   .case-summary,
+  .privacy-summary,
   .theme-option,
   .btn,
   .btn svg {
@@ -796,6 +797,35 @@ article:focus-within .motion-flow {
 
 .case-summary:hover {
   background: var(--soft);
+}
+
+/* Footer privacy note (src/components/landing/Footer.tsx): same +/− idiom as the cases. */
+.privacy-summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-block-size: 44px;
+  color: var(--muted);
+  cursor: pointer;
+  list-style: none;
+  transition: color 0.15s ease;
+}
+
+.privacy-summary::-webkit-details-marker {
+  display: none;
+}
+
+.privacy-summary::before {
+  content: '+';
+  color: var(--mark);
+}
+
+.privacy[open] > .privacy-summary::before {
+  content: '−';
+}
+
+.privacy-summary:hover {
+  color: var(--text);
 }
 
 /* Effects 9–11 (ADR 0002). 9: case cards answer hover. 10: cases open and close smoothly

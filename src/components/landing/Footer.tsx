@@ -14,7 +14,7 @@ export function Footer({ profile, t }: { profile: Content['profile']; t: Message
   ];
   return (
     <footer className="mt-20 border-t border-rule font-mono text-[0.8125rem] text-muted">
-      <div className="mx-auto flex w-[min(100%-40px,1080px)] flex-wrap items-center justify-between gap-4 py-5 pb-10">
+      <div className="mx-auto flex w-[min(100%-40px,1080px)] flex-wrap items-center justify-between gap-4 pt-5 pb-1">
         <span>© 2026 yevl.dev</span>
         <div className="flex items-center gap-5">
           <span>{t.footer}</span>
@@ -35,6 +35,13 @@ export function Footer({ profile, t }: { profile: Content['profile']; t: Message
           </ul>
         </div>
       </div>
+      {/* Native details: no JS. The site sets no cookies, so a note is enough (no consent banner). */}
+      <details id="privacy" className="privacy mx-auto w-[min(100%-40px,1080px)] pb-10">
+        <summary className="privacy-summary">{t.privacy.label}</summary>
+        <p className="measure mt-1 font-sans text-[0.875rem] leading-relaxed text-muted">
+          {t.privacy.body}
+        </p>
+      </details>
     </footer>
   );
 }

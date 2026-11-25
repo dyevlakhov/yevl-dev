@@ -82,6 +82,8 @@ export type Messages = {
   };
   newTab: string;
   footer: string;
+  /** Footer privacy note (details/summary). */
+  privacy: { label: string; body: string };
   theme: { group: string; names: Record<Theme, string>; option: string };
   skip: string;
 };
@@ -195,6 +197,10 @@ export const messages: Record<Locale, Messages> = {
     },
     newTab: '(opens in a new tab)',
     footer: 'Next.js · Vercel',
+    privacy: {
+      label: 'Privacy',
+      body: 'This site sets no cookies and has no forms or accounts. Vercel Web Analytics and Speed Insights count visits and measure page speed anonymously: page, referrer, country, browser, device type and load metrics. Vercel hosts the site and processes request data such as IP addresses to serve it. Your theme choice is stored only in your browser. If you email me, I use your address only to reply.',
+    },
     theme: {
       group: 'Theme',
       names: { vice: 'vice', dark: 'dark', light: 'light' },
@@ -311,6 +317,10 @@ export const messages: Record<Locale, Messages> = {
     },
     newTab: '(відкриється в новій вкладці)',
     footer: 'Next.js · Vercel',
+    privacy: {
+      label: 'Приватність',
+      body: 'Сайт не встановлює cookie і не має форм чи акаунтів. Vercel Web Analytics і Speed Insights анонімно рахують відвідування та вимірюють швидкість сторінки: сторінка, джерело переходу, країна, браузер, тип пристрою і метрики завантаження. Vercel хостить сайт і обробляє дані запитів, як-от IP-адреси, щоб його показувати. Вибрана тема зберігається лише у вашому браузері. Якщо ви напишете мені, я використаю вашу адресу лише для відповіді.',
+    },
     theme: {
       group: 'Тема',
       names: { vice: 'vice', dark: 'темна', light: 'світла' },
