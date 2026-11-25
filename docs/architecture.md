@@ -65,4 +65,6 @@ Metadata API with a self-referencing canonical and `hreflang` alternates per loc
 
 ## Quality gates
 
-`.github/workflows/ci.yml` runs on every pull request and on `main`: typecheck, lint, Prettier, unit tests, production build, JS budget, Playwright e2e with axe, and Lighthouse CI against the budgets above.
+`.github/workflows/ci.yml` runs on every pull request and on `main`: typecheck, lint, Prettier, unit tests, production build, JS budget, Playwright e2e with axe, and Lighthouse CI against the budgets above (job `check`, the required status check). Two more jobs run alongside it: `workflows` (actionlint and zizmor over `.github/`) and, on pull requests, `dependency-review` (new dependencies with known vulnerabilities fail).
+
+`.github/workflows/prod-check.yml` runs daily against https://yevl.dev: the same e2e suite (`BASE_URL` points Playwright at the live site), Lighthouse budgets (`lighthouserc.prod.json`) and a link check of both locales. CodeQL runs through GitHub's default setup. Dependabot waits seven days after a release before proposing it.

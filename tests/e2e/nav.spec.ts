@@ -28,6 +28,8 @@ test('anchor targets are not hidden under the sticky nav', async ({ page }) => {
 });
 
 test('specimen page renders without a11y violations', async ({ page }) => {
+  // The specimen is off in production (src/lib/env.ts); BASE_URL runs target the live site.
+  test.skip(!!process.env.BASE_URL, 'specimen is not served in production');
   const res = await page.goto('/dev/specimen');
   expect(res?.status()).toBe(200);
   await expectNoA11yViolations(page);

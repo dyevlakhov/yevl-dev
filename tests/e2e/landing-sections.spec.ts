@@ -56,7 +56,7 @@ for (const locale of locales) {
     test('readable and in the vice theme without JavaScript', async ({ browser }) => {
       const context = await browser.newContext({ javaScriptEnabled: false, colorScheme: 'light' });
       const page = await context.newPage();
-      await page.goto(`http://localhost:3000${path}`);
+      await page.goto(path);
       await expect(page.locator('h1')).toBeVisible();
       await expect(page.locator('#hero dl')).toBeVisible();
       await expect(page.locator('#work h3').first()).toBeVisible();
