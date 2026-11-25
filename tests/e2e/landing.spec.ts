@@ -4,6 +4,7 @@ import { localePath, locales } from '../../src/i18n/locales';
 import { messages } from '../../src/i18n/messages';
 import { yearRange } from '../../src/lib/format';
 import { emailHref } from '../../src/content/links';
+import { expectNoA11yViolations } from './helpers';
 
 const links = [
   '/cv.pdf',
@@ -105,6 +106,45 @@ for (const locale of locales) {
         await expect(a).toHaveAttribute('rel', 'me noopener noreferrer');
       }
     });
+
+    test('footer privacy note is closed, opens by keyboard and shows the approved text', async ({
+      page,
+    }) => {
+      await page.goto(path);
+      const note = page.locator('body > footer details#privacy');
+      const summary = note.locator('summary');
+      await expect(summary).toHaveText(t.privacy.label);
+      await expect(note).not.toHaveAttribute('open');
+      expect((await summary.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+      await summary.focus();
+      await page.keyboard.press('Enter');
+      await expect(note).toHaveAttribute('open', '');
+      await expect(note.locator('p')).toHaveText(t.privacy.body);
+    });
+
+    test('privacy note deep link scrolls to it', async ({ page }) => {
+      await page.goto(`${path}#privacy`);
+      await expect(page.locator('details#privacy summary')).toBeInViewport();
+    });
+
+    test('open privacy note fits 360px without horizontal scroll', async ({ page }) => {
+      await page.setViewportSize({ width: 360, height: 800 });
+      await page.goto(path);
+      await page.locator('details#privacy summary').click();
+      expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(
+        360,
+      );
+    });
+
+    for (const theme of ['vice', 'dark', 'light'] as const) {
+      test(`axe passes with the privacy note open in the ${theme} theme`, async ({ page }) => {
+        if (theme !== 'vice')
+          await page.addInitScript((v) => localStorage.setItem('theme', v), theme);
+        await page.goto(path);
+        await page.locator('details#privacy summary').click();
+        await expectNoA11yViolations(page);
+      });
+    }
 
     test('hero CTAs stack and never wrap mid-label at 360px', async ({ page }) => {
       await page.setViewportSize({ width: 360, height: 800 });

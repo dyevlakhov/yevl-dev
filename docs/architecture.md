@@ -61,6 +61,7 @@ Metadata API with a self-referencing canonical and `hreflang` alternates per loc
 - The CSP is strict except `script-src 'self' 'unsafe-inline'`: static pages cannot carry nonces, and Next.js inlines per-build scripts. A stricter policy broke hydration.
 - Analytics are cookieless and render only when `VERCEL_ENV === 'production'` at build time, so local builds, CI and previews ship no beacons.
 - The site has no secrets and no runtime API.
+- A privacy note in the footer (`<details id="privacy">`, no JS) states what the site and Vercel collect. The site sets no cookies, so there is no consent banner.
 
 ## Quality gates
 
