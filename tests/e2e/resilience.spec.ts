@@ -23,7 +23,7 @@ for (const locale of locales) {
 test('theme switch is absent when JavaScript is disabled', async ({ browser }) => {
   const context = await browser.newContext({ javaScriptEnabled: false });
   const page = await context.newPage();
-  await page.goto('http://localhost:3000/');
+  await page.goto('/');
   await expect(page.getByRole('button', { name: /theme/i })).toHaveCount(0);
   await expect(page.getByRole('group', { name: 'Theme' })).toHaveCount(0);
   await context.close();

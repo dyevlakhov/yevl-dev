@@ -72,7 +72,7 @@ test('stored light theme applies before hydration (no flash)', async ({ page }) 
 test('without JavaScript the page is vice', async ({ browser }) => {
   const context = await browser.newContext({ javaScriptEnabled: false, colorScheme: 'light' });
   const page = await context.newPage();
-  await page.goto('http://localhost:3000/');
+  await page.goto('/');
   expect(await bgVar(page)).toBe(palette.vice.bg);
   await context.close();
 });

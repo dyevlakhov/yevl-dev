@@ -11,7 +11,7 @@ test('terminal is rendered with JavaScript and absent without it', async ({ page
   await expect(input(page)).toBeVisible();
   const context = await browser.newContext({ javaScriptEnabled: false });
   const noJs = await context.newPage();
-  await noJs.goto('http://localhost:3000/');
+  await noJs.goto('/');
   await expect(noJs.getByRole('textbox')).toHaveCount(0);
   await context.close();
 });
