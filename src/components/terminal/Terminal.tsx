@@ -179,7 +179,7 @@ export function Terminal(ctx: TermContext) {
         <span aria-hidden="true" className="shrink-0 text-mark">
           {PROMPT}
         </span>
-        <span className="relative flex-1">
+        <span className="relative min-w-0 flex-1">
           <input
             ref={inputRef}
             id="term-input"
@@ -215,7 +215,9 @@ export function Terminal(ctx: TermContext) {
       <div
         role="log"
         aria-live="polite"
-        className={lines.length ? 'border-t border-rule px-4 py-3 whitespace-pre-wrap' : ''}
+        className={
+          lines.length ? 'border-t border-rule px-4 py-3 wrap-anywhere whitespace-pre-wrap' : ''
+        }
       >
         {lines.map((l) =>
           l.kind === 'link' ? (

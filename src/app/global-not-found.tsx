@@ -1,19 +1,8 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { IBM_Plex_Sans, JetBrains_Mono } from 'next/font/google';
+import { plexSans, jetbrainsMono } from '@/design/fonts';
 import { themeBootstrapScript } from '@/lib/theme';
 import './globals.css';
-
-const plexSans = IBM_Plex_Sans({
-  subsets: ['latin', 'cyrillic'],
-  variable: '--font-plex-sans',
-  display: 'swap',
-});
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ['latin', 'cyrillic'],
-  variable: '--font-jetbrains-mono',
-  display: 'swap',
-});
 
 export const metadata: Metadata = {
   title: '404 · yevl.dev',

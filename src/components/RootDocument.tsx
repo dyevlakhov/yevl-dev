@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import type { CSSProperties, ReactNode } from 'react';
-import { IBM_Plex_Sans, JetBrains_Mono } from 'next/font/google';
 import localFont from 'next/font/local';
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
@@ -8,6 +7,7 @@ import { getContent } from '@/content';
 import { localePath, type Locale } from '@/i18n/locales';
 import { messages } from '@/i18n/messages';
 import { GLASS_SURFACE_OPACITY, NAV_SURFACE_OPACITY } from '@/design/tokens';
+import { plexSans, jetbrainsMono } from '@/design/fonts';
 import { SiteHeader } from '@/components/ui/SiteHeader';
 import { SkipLink } from '@/components/ui/SkipLink';
 import { themeBootstrapScript } from '@/lib/theme';
@@ -18,29 +18,6 @@ import '@/app/globals.css';
 // decided at build time: CI, `next start` and previews ship no beacon (no 404 console errors, and
 // previews do not spend the Hobby event quotas). See docs/architecture.md.
 const vercelProduction = process.env.VERCEL_ENV === 'production';
-
-const plexSans = IBM_Plex_Sans({
-  subsets: ['latin', 'cyrillic'],
-  variable: '--font-plex-sans',
-  display: 'swap',
-});
-
-// A system monospace fallback with the same 0.6 em advance (Courier New, not the narrower Consolas), so a late font swaps in without the
-// size jump of the default size-adjusted Arial fallback (ADR 0002).
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ['latin', 'cyrillic'],
-  variable: '--font-jetbrains-mono',
-  display: 'swap',
-  adjustFontFallback: false,
-  fallback: [
-    'ui-monospace',
-    'SFMono-Regular',
-    'Menlo',
-    'Courier New',
-    'DejaVu Sans Mono',
-    'monospace',
-  ],
-});
 
 // Vice headings (ADR 0001): Science Gothic 700, width axis 80–110%, latin + cyrillic in
 // one self-hosted file (src/assets/fonts/README.md). Preloaded because the role headline is the

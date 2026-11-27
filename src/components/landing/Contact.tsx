@@ -76,7 +76,7 @@ export function Contact({ profile, t }: { profile: Content['profile']; t: Messag
                   {/* Visible and one-click selectable, for visitors whose mailto opens nothing. */}
                   <span
                     data-email
-                    className="truncate font-mono text-[0.875rem] select-all max-[480px]:text-[0.8125rem]"
+                    className="min-w-0 font-mono text-[0.875rem] wrap-anywhere select-all max-[480px]:text-[0.8125rem]"
                   >
                     {row.handle}
                   </span>

@@ -1,12 +1,48 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
 import { localePath, locales } from '../../src/i18n/locales';
 import { messages } from '../../src/i18n/messages';
 
 const EMAIL = 'yevlakhovdmytro@gmail.com';
 
+declare global {
+  interface Window {
+    pendingClipboardWrites: { resolve: () => void; reject: () => void }[];
+  }
+}
+
+async function deferClipboardWrites(page: Page) {
+  await page.addInitScript(() => {
+    window.pendingClipboardWrites = [];
+    Object.defineProperty(navigator, 'platform', { value: 'Linux x86_64' });
+    Object.defineProperty(navigator, 'clipboard', {
+      value: {
+        writeText: () =>
+          new Promise<void>((resolve, reject) => {
+            window.pendingClipboardWrites.push({ resolve, reject });
+          }),
+      },
+    });
+  });
+}
+
 for (const locale of locales) {
   const t = messages[locale];
   const path = localePath(locale);
+
+  for (const width of [320, 360]) {
+    test(`${locale}: the full email is readable at ${width}px`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 800 });
+      await page.goto(path);
+      await page.evaluate(() => document.fonts.ready);
+      const email = page.locator('[data-email]');
+      await expect(email).toHaveText(EMAIL);
+      const fits = await email.evaluate(
+        (el) => el.scrollWidth <= el.clientWidth && el.scrollHeight <= el.clientHeight,
+      );
+      expect(fits).toBe(true);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(width);
+    });
+  }
 
   test(`${locale}: copy puts the address on the clipboard and confirms`, async ({
     page,
@@ -118,6 +154,42 @@ for (const locale of locales) {
       .poll(() => page.evaluate(() => (window as unknown as { batches: number }).batches))
       .toBeGreaterThanOrEqual(2);
   });
+
+  for (const latest of ['success', 'failure'] as const) {
+    test(`${locale}: a late clipboard response preserves the latest ${latest}`, async ({
+      page,
+    }) => {
+      await deferClipboardWrites(page);
+      await page.goto(localePath(locale));
+      const button = page.locator('[data-copy-email]');
+      const status = page.locator('[data-copy-status]');
+      await button.click();
+      await button.click();
+      await page.evaluate((outcome) => {
+        const current = window.pendingClipboardWrites[1]!;
+        if (outcome === 'success') current.resolve();
+        else current.reject();
+      }, latest);
+      await expect(status).toHaveText(
+        latest === 'success' ? t.contact.announce : t.contact.fallback,
+      );
+
+      // Settle the older request with the opposite outcome, after the newer one is visible.
+      await page.evaluate((outcome) => {
+        const previous = window.pendingClipboardWrites[0]!;
+        if (outcome === 'success') previous.reject();
+        else previous.resolve();
+      }, latest);
+      await page.waitForTimeout(100);
+      await expect(status).toHaveText(
+        latest === 'success' ? t.contact.announce : t.contact.fallback,
+      );
+      await expect(button).toHaveText(latest === 'success' ? t.contact.copied : t.contact.copy);
+      expect(await page.evaluate(() => getSelection()?.toString())).toBe(
+        latest === 'success' ? '' : EMAIL,
+      );
+    });
+  }
 }
 
 test.describe('touch-only device', () => {
@@ -142,6 +214,17 @@ test.describe('without JavaScript', () => {
   test.use({ javaScriptEnabled: false });
 
   for (const locale of locales) {
+    test(`${locale}: the full email remains readable at 320px without JavaScript`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width: 320, height: 800 });
+      await page.goto(localePath(locale));
+      await page.evaluate(() => document.fonts.ready);
+      expect(
+        await page.locator('[data-email]').evaluate((el) => el.scrollWidth <= el.clientWidth),
+      ).toBe(true);
+    });
+
     test(`${locale}: no copy button; the Unity CTA still reaches the card`, async ({ page }) => {
       await page.goto(localePath(locale));
       await expect(page.locator('#contact button[data-copy-email]')).toBeHidden();
@@ -194,5 +277,19 @@ for (const locale of locales) {
     await page.waitForTimeout(200);
     await expect(page.locator('#contact [data-cta-status]')).toHaveText('');
     expect(errors).toEqual([]);
+  });
+
+  test(`${locale}: "Email me" ignores an older success after a newer failure`, async ({ page }) => {
+    await deferClipboardWrites(page);
+    await page.goto(localePath(locale));
+    const cta = page.locator('#hero a[data-email-cta]');
+    const status = page.locator('#hero [data-cta-status]');
+    await cta.evaluate((el) => el.addEventListener('click', (event) => event.preventDefault()));
+    await cta.click();
+    await cta.click();
+    await page.evaluate(() => window.pendingClipboardWrites[1]!.reject());
+    await page.evaluate(() => window.pendingClipboardWrites[0]!.resolve());
+    await page.waitForTimeout(100);
+    await expect(status).toBeEmpty();
   });
 }

@@ -9,56 +9,96 @@ import { EMAIL } from '@/content/links';
  * - Clipboard refused or missing: the address is selected and the live region says how to copy it
  *   (⌘C on Apple platforms, Ctrl+C elsewhere, tap and hold on touch-only devices). The hint lands
  *   in a later task than the clear, so screen readers announce it again on a repeat click.
- * - Each click cancels the previous success timer, so it never wipes a newer hint.
+ * - Each click cancels previous timers and invalidates pending clipboard results, so only the
+ *   latest attempt updates the label, selection and status.
  *
  * "Email me" links (`a[data-email-cta]`) keep their mailto. The click also copies the address and,
  * once the clipboard accepts it, shows the link's hint in its scope's status line for 8 s: on a Mac
  * with no mail app set up, mailto does nothing and the browser can't tell. A refused clipboard
  * shows nothing; the contact block still shows the address.
  */
-export const copyEmailScript = `(function(){try{
-var address='${EMAIL}';
-document.querySelectorAll('a[data-email-cta]').forEach(function(a){
-var scope=a.closest('[data-cta-scope]');
-var out=scope&&scope.querySelector('[data-cta-status]');
-var t;
-a.addEventListener('click',function(){
-var c=navigator.clipboard;
-if(!out||!c||!c.writeText)return;
-clearTimeout(t);out.textContent='';
-c.writeText(address).then(function(){
-var msg=a.getAttribute('data-email-cta');
-setTimeout(function(){out.textContent=msg},50);
-t=setTimeout(function(){out.textContent=''},8000);
-},function(){});
-});
-});
-var btn=document.querySelector('button[data-copy-email]');
-var email=document.querySelector('[data-email]');
-var status=document.querySelector('[data-copy-status]');
-if(!btn||!email||!status)return;
-var lbl=btn.querySelector('[data-label]')||btn;var label=lbl.textContent;var timer;
-btn.hidden=false;
-var hint=function(){
-var mq=function(q){return matchMedia(q).matches};
-if(mq('(pointer: coarse)')&&!mq('(any-pointer: fine)'))return 'data-fallback-touch';
-var p=navigator.platform||(navigator.userAgentData&&navigator.userAgentData.platform)||'';
-return /mac|iphone|ipad/i.test(p)?'data-fallback-mac':'data-fallback';
-};
-var fallback=function(){
-var r=document.createRange();r.selectNodeContents(email);
-var s=getSelection();s.removeAllRanges();s.addRange(r);
-var text=btn.getAttribute(hint());
-timer=setTimeout(function(){status.textContent=text},50);
-};
-btn.addEventListener('click',function(){
-clearTimeout(timer);lbl.textContent=label;status.textContent='';
-var c=navigator.clipboard;
-if(!c||!c.writeText){fallback();return}
-c.writeText(email.textContent.trim()).then(function(){
-lbl.textContent=btn.getAttribute('data-copied');
-status.textContent=btn.getAttribute('data-announce');
-timer=setTimeout(function(){lbl.textContent=label;status.textContent=''},2000);
-},fallback);
-});
-}catch(e){}})();`;
+export const copyEmailScript = `(function () {
+  try {
+    const address = '${EMAIL}';
+    document.querySelectorAll('a[data-email-cta]').forEach(function (link) {
+      const scope = link.closest('[data-cta-scope]');
+      const status = scope && scope.querySelector('[data-cta-status]');
+      if (!status) return;
+      let latestAttempt = 0;
+      let announceTimer;
+      let resetTimer;
+
+      link.addEventListener('click', function () {
+        const attempt = ++latestAttempt;
+        clearTimeout(announceTimer);
+        clearTimeout(resetTimer);
+        status.textContent = '';
+        const clipboard = navigator.clipboard;
+        if (!clipboard || !clipboard.writeText) return;
+
+        clipboard.writeText(address).then(function () {
+          if (attempt !== latestAttempt) return;
+          announceTimer = setTimeout(function () {
+            status.textContent = link.getAttribute('data-email-cta');
+          }, 50);
+          resetTimer = setTimeout(function () {
+            status.textContent = '';
+          }, 8000);
+        }, function () {});
+      });
+    });
+
+    const button = document.querySelector('button[data-copy-email]');
+    const email = document.querySelector('[data-email]');
+    const status = document.querySelector('[data-copy-status]');
+    if (!button || !email || !status) return;
+    const label = button.querySelector('[data-label]') || button;
+    const originalLabel = label.textContent;
+    let timer;
+    let latestAttempt = 0;
+    button.hidden = false;
+
+    const hint = function () {
+      if (matchMedia('(pointer: coarse)').matches && !matchMedia('(any-pointer: fine)').matches) {
+        return 'data-fallback-touch';
+      }
+      const platform = navigator.platform || (navigator.userAgentData && navigator.userAgentData.platform) || '';
+      return /mac|iphone|ipad/i.test(platform) ? 'data-fallback-mac' : 'data-fallback';
+    };
+
+    button.addEventListener('click', function () {
+      const attempt = ++latestAttempt;
+      clearTimeout(timer);
+      label.textContent = originalLabel;
+      status.textContent = '';
+
+      const fallback = function () {
+        if (attempt !== latestAttempt) return;
+        const range = document.createRange();
+        range.selectNodeContents(email);
+        const selection = getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+        const text = button.getAttribute(hint());
+        timer = setTimeout(function () {
+          status.textContent = text;
+        }, 50);
+      };
+
+      const clipboard = navigator.clipboard;
+      if (!clipboard || !clipboard.writeText) {
+        fallback();
+        return;
+      }
+      clipboard.writeText(email.textContent.trim()).then(function () {
+        if (attempt !== latestAttempt) return;
+        label.textContent = button.getAttribute('data-copied');
+        status.textContent = button.getAttribute('data-announce');
+        timer = setTimeout(function () {
+          label.textContent = originalLabel;
+          status.textContent = '';
+        }, 2000);
+      }, fallback);
+    });
+  } catch (error) {}
+})();`;
