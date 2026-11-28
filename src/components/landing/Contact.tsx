@@ -1,3 +1,4 @@
+import { Fragment } from 'react';
 import type { Content } from '@/content/schema';
 import type { Messages } from '@/i18n/messages';
 import { Actions } from '@/components/ui/Actions';
@@ -73,12 +74,19 @@ export function Contact({ profile, t }: { profile: Content['profile']; t: Messag
                   <span className="font-mono text-[0.8125rem] text-muted max-[480px]:hidden">
                     {row.key}
                   </span>
-                  {/* Visible and one-click selectable, for visitors whose mailto opens nothing. */}
+                  {/* Visible and one-click selectable, for visitors whose mailto opens nothing.
+                      On the narrowest screens it wraps before the @, not inside the domain. */}
                   <span
                     data-email
                     className="min-w-0 font-mono text-[0.875rem] wrap-anywhere select-all max-[480px]:text-[0.8125rem]"
                   >
-                    {row.handle}
+                    {row.handle.split('@').map((part, i) => (
+                      <Fragment key={i}>
+                        {i > 0 && <wbr />}
+                        {i > 0 && '@'}
+                        {part}
+                      </Fragment>
+                    ))}
                   </span>
                   {/* Revealed by copyEmailScript; hidden without JavaScript. */}
                   <button

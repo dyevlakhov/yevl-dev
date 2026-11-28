@@ -41,6 +41,23 @@ for (const locale of locales) {
       );
       expect(fits).toBe(true);
       expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(width);
+      // A wrapped address breaks before the @, never inside the user name or the domain.
+      const lines = await email.evaluate((el) => {
+        const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+        const tops = new Map<number, string>();
+        for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+          for (let i = 0; i < node.textContent!.length; i++) {
+            const range = document.createRange();
+            range.setStart(node, i);
+            range.setEnd(node, i + 1);
+            const top = Math.round(range.getBoundingClientRect().top);
+            tops.set(top, (tops.get(top) ?? '') + node.textContent![i]);
+          }
+        }
+        return [...tops.values()];
+      });
+      expect(lines.join('')).toBe(EMAIL);
+      if (lines.length > 1) expect(lines).toEqual([EMAIL.split('@')[0], `@${EMAIL.split('@')[1]}`]);
     });
   }
 
