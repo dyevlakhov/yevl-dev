@@ -86,7 +86,8 @@ for (const locale of locales) {
       );
       for (const row of await page.locator('#contact [data-contact-rows] > li').all()) {
         const box = (await row.boundingBox())!;
-        expect(box.height).toBeLessThan(60);
+        expect(box.x).toBeGreaterThanOrEqual(0);
+        expect(box.x + box.width).toBeLessThanOrEqual(320);
       }
     });
 

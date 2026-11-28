@@ -43,6 +43,24 @@ test('help prints the command list into a live region', async ({ page }) => {
   await expect(input(page)).toHaveValue('');
 });
 
+for (const path of ['/', '/uk']) {
+  for (const width of [320, 390]) {
+    test(`${path}: long commands stay within the ${width}px viewport`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 800 });
+      await page.goto(path);
+      const command = 'x'.repeat(350);
+      const prompt = page.getByRole('textbox');
+      await prompt.fill(command);
+      await prompt.press('Enter');
+      const output = page.getByRole('log');
+      await expect(output).toContainText(command);
+      await page.evaluate(() => document.fonts.ready);
+      expect(await output.evaluate((el) => el.scrollWidth <= el.clientWidth)).toBe(true);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(width);
+    });
+  }
+}
+
 test('Tab completes, ArrowUp recalls history, Escape clears output', async ({ page }) => {
   await page.goto('/');
   await input(page).fill('exp');
